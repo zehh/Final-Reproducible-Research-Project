@@ -9,26 +9,63 @@ output: html_document
 
 # Data Processing
 
+## Reading the Raw Data 
 The first step is to actually get the data, to do so, we're going to download it from the U.S. National Oceanic and Atmospheric Administration's (NOAA) website.
 
 ```{r, results='hide', cache=TRUE, message = FALSE}
-library(tidyverse)
-library(lubridate)
 url <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2"
 download.file (url, "./data/stormdata.csv.bz2")
 stormdata <- read.csv("./data/stormdata.csv.bz2")
 ```
 
+## Exploratory Data Analysis
+
 Let's now look at some properties of the data set.
 
-```{r}
+```{r, message = FALSE}
+library(tidyverse) # loading libraries that will
+library(lubridate) # be useful during the analysis
 dim(stormdata)
 names(stormdata)
 as_tibble(stormdata)
 ```
+There are 902297 observations across 37 variables. The variable names are described above.
+
+### Understanding the Time Frame of the Data
+
+BGN_DATE could be a variable of interest if we wanted to compare between different periods or if we wanted to look at a specific range of time. By now, we're content to look at the data as a whole, but it is important to understand the time frame that we're looking at.
 
 ```{r}
-
+stormdata %>% mutate (BGN_DATE = mdy_hms(BGN_DATE)) ->
+        stormdata
+range(stormdata$BGN_DATE)
 ```
+The above sets the time-frame of the observations between January of 1950 and November of 2011.
+
+## Answering the Proposed Questions
+
+### Question 1
+
+Based on the following question raised by the assignment:
+
+> Across the United States, which types of events (as indicated in the EVTYPE variable) are most harmful with respect to population health?
+
+The variables of interest are: EVTYPE, FATALITIES and INJURIES
+
+We can group the data by the event type while summarizing with the sum of the fatalities and injuries for each event type. We can then order the observations by FATALITIES first and then INJURIES to resolve ties.
+
+```{r}
+stormdata %>% as_tibble() %>% group_by(EVTYPE) %>% summarise(FATALITIES = sum(FATALITIES), INJURIES = sum(INJURIES)) %>% arrange(desc(FATALITIES), desc(INJURIES)) ->
+        healthdmg
+healthdmg
+```
+
+The table above summarizes the data in the descending order by FATALITIES, and breaks ties by using INJURIES. The tie-breaking becomes most useful in the observations that didn't lead to any FATALITIES. We can see only those observations by filtering.
+
+```{r}
+healthdmg %>% filter(FATALITIES == 0) %>% select (EVTYPE,INJURIES) -> injuries
+injuries
+```
+The table above summarizes the events that didn't lead to any FATALITIES by descending order of INJURIES.
 
 # Results
