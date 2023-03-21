@@ -1,0 +1,34 @@
+---
+title: "Analysis of the economic and health burden of severe weather events in the United States"
+author: "Pedro Henrique Brant"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+# Synopsis
+
+# Data Processing
+
+The first step is to actually get the data, to do so, we're going to download it from the U.S. National Oceanic and Atmospheric Administration's (NOAA) website.
+
+```{r, results='hide', cache=TRUE, message = FALSE}
+library(tidyverse)
+library(lubridate)
+url <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2"
+download.file (url, "./data/stormdata.csv.bz2")
+stormdata <- read.csv("./data/stormdata.csv.bz2")
+```
+
+Let's now look at some properties of the data set.
+
+```{r}
+dim(stormdata)
+names(stormdata)
+as_tibble(stormdata)
+```
+
+```{r}
+
+```
+
+# Results
